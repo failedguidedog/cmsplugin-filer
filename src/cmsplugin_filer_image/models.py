@@ -1,13 +1,8 @@
-from django.utils.translation import ugettext_lazy as _
-from django.db import models
-from cms.models import CMSPlugin, Page
+from cms.models import CMSPlugin
 from cms.models.fields import PageField
+from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from posixpath import join, basename, splitext, exists
 from filer.fields.image import FilerImageField
-from filer.fields.file import FilerFileField
-from cms import settings as cms_settings
-from django.conf import settings
 
 class FilerImage(CMSPlugin):
     LEFT = "left"
@@ -44,7 +39,6 @@ class FilerImage(CMSPlugin):
         # Make sure that either image or image_url is set
         if (not self.image and not self.image_url) or (self.image and self.image_url):
             raise ValidationError(_('Either an image or an image url must be selected.'))
-
     
     def __unicode__(self):
         if self.image:
