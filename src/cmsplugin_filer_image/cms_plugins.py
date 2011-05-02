@@ -2,9 +2,9 @@ import os
 from cms.plugin_pool import plugin_pool
 from cms.plugin_base import CMSPluginBase
 from django.utils.translation import ugettext_lazy as _
-import models
-from django.conf import settings
 
+from . import models
+from . import settings
 from filer.settings import FILER_STATICMEDIA_PREFIX
 
 class FilerImagePlugin(CMSPluginBase):
@@ -16,23 +16,27 @@ class FilerImagePlugin(CMSPluginBase):
     admin_preview = False
     fieldsets = (
         (None, {
-            'fields': ('caption', ('image', 'image_url',), 'alt_text',)
+            'fields': ('caption', settings.ENABLE_IMAGE_URL and ('image', 'image_url',) or 'image',)
         }),
         (_('Image resizing options'), {
-            'fields': ('use_autoscale', 'thumbnail_option',)
+            'fields': settings.ENABLE_AUTOMATIC_SCALING and ('use_autoscale', 'thumbnail_option',) or ('thumbnail_option',)
         }),
-        (None, {
+    )
+    if settings.ENABLE_ALT_TEXT:
+        fieldsets[0][1]['fields'] += ('alt_text',)
+    if settings.ENABLE_INDIVIDUAL_THUMBNAIL_SETTINGS:
+        fieldsets += ((None, {
             'fields': (('width', 'height',),
                        ('crop', 'upscale',),)
-        }),
+        }),)
+    fieldsets += (
         (None, {
             'fields': ('alignment',)
         }),
         (_('More'), {
             'classes': ('collapse',),
             'fields': (('free_link', 'page_link',), 'description',)
-        }),        
-        
+        }),
     )
     
     def _get_thumbnail_options(self, context, instance):
