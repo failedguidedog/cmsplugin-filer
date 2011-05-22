@@ -1,0 +1,13 @@
+{% load i18n thumbnail %}
+
+<section class="gallery">
+    {% if object.title %}
+        <h1>{{ object.title }}</h1>
+    {% endif %}
+    
+    <div class="images" id="gallery-{{ object.id }}">{% spaceless %}
+        {% for image in images %}
+            <a href="{% thumbnail image.file 800x800 %}" class="zoom" rel="gallery-{{ object.id }}"><img src="{% thumbnail image.file size crop=crop upscale=upscale %}" alt="" /></a>
+        {% endfor %}
+    {% endspaceless %}</div>
+</section>
