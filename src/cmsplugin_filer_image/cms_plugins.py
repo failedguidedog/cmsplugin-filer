@@ -31,7 +31,7 @@ class FilerImagePlugin(CMSPluginBase):
         }),)
     fieldsets += (
         (None, {
-            'fields': ('alignment',)
+            'fields': settings.ENABLE_ZOOMABLE and ('alignment', 'zoomable',) or ('alignment',)
         }),
         (_('More'), {
             'classes': ('collapse',),
