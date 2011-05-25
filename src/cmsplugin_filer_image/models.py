@@ -71,7 +71,7 @@ class ThumbnailOption(models.Model):
     upscale = models.BooleanField(_("upscale"), default=True)
     
     class Meta:
-        ordering = ('width', 'height')
+        ordering = ('width', 'id')
         verbose_name = _("thumbnail option")
         verbose_name_plural = _("thumbnail options")
         
