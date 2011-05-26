@@ -21,3 +21,6 @@ class FilerGallery(CMSPlugin):
     
     search_fields = ('title',)
     
+    class Meta:
+        verbose_name = _("gallery")
+        verbose_name_plural = _("galleries")
