@@ -14,7 +14,7 @@
 
 
 {% if instance.image %}
-	{% thumbnail instance.image size crop=opts.crop upscale=opts.upscale subject_location=opts.subject_location as thumbnail %}
+	{% thumbnail instance.image size crop=opts.crop upscale=opts.upscale as thumbnail %}
 	{% if link %}<a href="{{ link }}">{% endif %}<img{% if instance.alignment %} class="{{ object.alignment }}"{% endif %} alt="{% if object.alt %}{{ object.alt }}{% endif %}" src="{{ thumbnail.url }}" />{% if link %}</a>{% endif %}
 {% else %}
 	{# just a plain link to some external image #}
