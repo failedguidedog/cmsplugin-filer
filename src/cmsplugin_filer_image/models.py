@@ -12,7 +12,9 @@ from django.conf import settings
 class FilerImage(CMSPlugin):
     LEFT = "left"
     RIGHT = "right"
+    CENTER = "center"
     FLOAT_CHOICES = ((LEFT, _("left")),
+                     (CENTER, _("center")),
                      (RIGHT, _("right")),
                      )
     caption = models.CharField(null=True, blank=True, max_length=255)
