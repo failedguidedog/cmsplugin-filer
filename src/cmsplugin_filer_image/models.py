@@ -7,7 +7,9 @@ from filer.fields.image import FilerImageField
 class FilerImage(CMSPlugin):
     LEFT = "left"
     RIGHT = "right"
+    CENTER = "center"
     FLOAT_CHOICES = ((LEFT, _("left")),
+                     (CENTER, _("center")),
                      (RIGHT, _("right")),
                      )
     caption = models.CharField(_("caption"), null=True, blank=True, max_length=255)
