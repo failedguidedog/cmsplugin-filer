@@ -1,8 +1,12 @@
-from cms.models import CMSPlugin
+from cms.models import CMSPlugin, Page
 from cms.models.fields import PageField
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from posixpath import join, basename, splitext, exists
 from filer.fields.image import FilerImageField
+from filer.fields.file import FilerFileField
+from cms import settings as cms_settings
+from django.conf import settings
 
 class FilerImage(CMSPlugin):
     LEFT = "left"
@@ -12,7 +16,7 @@ class FilerImage(CMSPlugin):
                      (CENTER, _("center")),
                      (RIGHT, _("right")),
                      )
-    caption = models.CharField(_("caption"), null=True, blank=True, max_length=255)
+    caption_text = models.CharField(_("caption text"), null=True, blank=True, max_length=255)
     image = FilerImageField(null=True, blank=True, default=None, verbose_name=_("image"))
     image_url = models.URLField(_("alternative image url"), verify_exists=False, null=True, blank=True, default=None)
     alt_text = models.CharField(_("alt text"), null=True, blank=True, max_length=255)
@@ -31,6 +35,8 @@ class FilerImage(CMSPlugin):
     page_link = PageField(null=True, blank=True, 
                           help_text=_("if present image will be clickable"),
                           verbose_name=_("page link"))
+    file_link = FilerFileField(null=True, blank=True, default=None, verbose_name=_("file link"), help_text=_("if present image will be clickable"), related_name='+')
+    original_link = models.BooleanField(_("link original image"), default=False, help_text=_("if present image will be clickable"))
     description = models.TextField(_("description"), blank=True, null=True)
     
     class Meta:
@@ -47,17 +53,33 @@ class FilerImage(CMSPlugin):
         if self.image:
             return self.image.label
         else:
-            return unicode( _("Image Publication %(caption)s") % {'caption': self.caption} )
+            return unicode( _("Image Publication %(caption)s") % {'caption': self.caption or self.alt} )
         return ''
     @property
-    def alt(self): 
-        return self.alt_text
+    def caption(self):
+        if self.image:
+            return self.caption_text or self.image.default_caption
+        else:
+            return self.caption_text
+    @property
+    def alt(self):
+        if self.image:
+            return self.alt_text or self.image.default_alt_text or self.image.label
+        else:
+            return self.alt_text
     @property
     def link(self):
         if self.free_link:
             return self.free_link
-        elif self.page_link and self.page_link:
+        elif self.page_link:
             return self.page_link.get_absolute_url()
+        elif self.file_link:
+            return self.file_link.url
+        elif self.original_link:
+            if self.image:
+                return self.image.url
+            else:
+                return self.image_url
         else:
             return ''
         
@@ -73,7 +95,7 @@ class ThumbnailOption(models.Model):
     upscale = models.BooleanField(_("upscale"), default=True)
     
     class Meta:
-        ordering = ('width', 'id')
+        ordering = ('width', 'height', 'id')
         verbose_name = _("thumbnail option")
         verbose_name_plural = _("thumbnail options")
         
@@ -81,4 +103,3 @@ class ThumbnailOption(models.Model):
         return u'%s -- %s x %s' %(self.name, self.width, self.height)
         
 
-    

@@ -16,7 +16,7 @@ class FilerImagePlugin(CMSPluginBase):
     admin_preview = False
     fieldsets = (
         (None, {
-            'fields': ('caption', settings.ENABLE_IMAGE_URL and ('image', 'image_url',) or 'image',)
+            'fields': ('caption_text', settings.ENABLE_IMAGE_URL and ('image', 'image_url',) or 'image',)
         }),
         (_('Image resizing options'), {
             'fields': settings.ENABLE_AUTOMATIC_SCALING and ('use_autoscale', 'thumbnail_option',) or ('thumbnail_option',)
@@ -35,8 +35,8 @@ class FilerImagePlugin(CMSPluginBase):
         }),
         (_('More'), {
             'classes': ('collapse',),
-            'fields': (('free_link', 'page_link',), 'description',)
-        }),
+            'fields': (('free_link', 'page_link', 'file_link', 'original_link'), 'description',)
+        }),        
     )
     
     def _get_thumbnail_options(self, context, instance):

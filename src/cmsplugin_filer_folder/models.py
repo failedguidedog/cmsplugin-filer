@@ -6,10 +6,7 @@ from posixpath import join, basename, splitext, exists
 from filer.fields.folder import FilerFolderField
 from django.conf import settings
 
-VIEW_OPTIONS = (
-    ("list", "List"),
-    ("slideshow", "slideshow")
-)
+VIEW_OPTIONS = getattr(settings, 'CMSPLUGIN_FILER_FOLDER_VIEW_OPTIONS', (("list", _("List")),("slideshow",_("Slideshow"))))
 
 class FilerFolder(CMSPlugin):
     """
