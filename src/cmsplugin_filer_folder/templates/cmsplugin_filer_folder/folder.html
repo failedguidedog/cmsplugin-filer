@@ -19,30 +19,36 @@ jQuery(document).ready(function ($) {
 {% if object.view_option == "list" %}
     <div class="cmsplugin_filer_folder_list" id="folder_{{ instance.id }}">
         <!--The files should go there    -->
-        <p>folders</p>
+        {% if folder_children %}
+        <p>{% trans "Folders" %}</p>
         <ul>
             {% for folder in folder_children %}
                 <li>{{ folder }}</li>
             {% endfor %}
         </ul>
-        <p>Files</p>
+        {% endif %}
+        {% if folder_files %}
+        <p>{% trans "Files" %}</p>
         <ul>
             {% for files in folder_files %}
                 <li>{{ files }}</li>
             {% endfor %}
         </ul>
-        <p>Images</p>
+        {% endif %}
+        {% if folder_images %}
+        <p>{% trans "Images" %}</p>
         <ul>
             {% for image in folder_images %}
-                <li><img src="{% thumbnail image.file 32x32 crop=True upscale=True %}"></li>
+                <li><img src="{% thumbnail image.file 32x32 crop="True" upscale="True" %}" width="32" height="32" alt="{{ image.label }}"></li>
             {% endfor %}
         </ul>
+        {% endif %}
     </div>
 {% else %}
     <!-- start: slideshow -->
     <div class="cmsplugin_filer_folder_slidshow" id="folder_{{ object.id }}">
         {% for image in folder_images %}
-            <img src="{% thumbnail image.file 200x200 crop=True upscale=True %}">
+            <img src="{% thumbnail image.file 200x200 crop="True" upscale="True" %}">
         {% endfor %}
     </div>
     <!-- end: gallery -->

@@ -2,9 +2,9 @@ import os
 from cms.plugin_pool import plugin_pool
 from cms.plugin_base import CMSPluginBase
 from django.utils.translation import ugettext_lazy as _
-import models
-from django.conf import settings
 
+from . import models
+from . import settings
 from filer.settings import FILER_STATICMEDIA_PREFIX
 
 class FilerImagePlugin(CMSPluginBase):
@@ -16,23 +16,27 @@ class FilerImagePlugin(CMSPluginBase):
     admin_preview = False
     fieldsets = (
         (None, {
-            'fields': ('caption', ('image', 'image_url',), 'alt_text',)
+            'fields': ('caption_text', settings.ENABLE_IMAGE_URL and ('image', 'image_url',) or 'image',)
         }),
-        (_('image resizing options'), {
-            'fields': ('use_autoscale', 'thumbnail_option',)
+        (_('Image resizing options'), {
+            'fields': settings.ENABLE_AUTOMATIC_SCALING and ('use_autoscale', 'thumbnail_option',) or ('thumbnail_option',)
         }),
-        (None, {
+    )
+    if settings.ENABLE_ALT_TEXT:
+        fieldsets[0][1]['fields'] += ('alt_text',)
+    if settings.ENABLE_INDIVIDUAL_THUMBNAIL_SETTINGS:
+        fieldsets += ((None, {
             'fields': (('width', 'height',),
                        ('crop', 'upscale',),)
-        }),
+        }),)
+    fieldsets += (
         (None, {
-            'fields': ('alignment',)
+            'fields': settings.ENABLE_ZOOMABLE and ('alignment', 'zoomable',) or ('alignment',)
         }),
-        ('More', {
+        (_('More'), {
             'classes': ('collapse',),
-            'fields': (('free_link', 'page_link',), 'description',)
+            'fields': (('free_link', 'page_link', 'file_link', 'original_link'), 'description',)
         }),        
-        
     )
     
     def _get_thumbnail_options(self, context, instance):
@@ -43,6 +47,7 @@ class FilerImagePlugin(CMSPluginBase):
         crop, upscale = False, False
         subject_location = False
         placeholder_width = context.get('width', None)
+        placeholder_height = context.get('height', None)
         if instance.thumbnail_option:
             # thumbnail option overrides everything else
             if instance.thumbnail_option.width:
@@ -57,7 +62,9 @@ class FilerImagePlugin(CMSPluginBase):
                 width = int(placeholder_width)
             elif instance.width:
                 width = instance.width
-            if instance.height:
+            if instance.use_autoscale and placeholder_height:
+                height = int(placeholder_height)
+            elif instance.height:
                 height = instance.height
             crop = instance.crop
             upscale = instance.upscale
@@ -98,10 +105,13 @@ class FilerImagePlugin(CMSPluginBase):
     
     def icon_src(self, instance):
         if instance.image:
-            # Fake the context with a reasonable width value because it is not 
-            # available at this stage
-            thumbnail = self.get_thumbnail({'width':200}, instance)
-            return thumbnail.url
+            if getattr(settings, 'FILER_IMAGE_USE_ICON', False) and '32' in instance.image.icons:
+                return instance.image.icons['32']
+            else:
+                # Fake the context with a reasonable width value because it is not 
+                # available at this stage
+                thumbnail = self.get_thumbnail({'width':200}, instance)
+                return thumbnail.url
         else:
             return os.path.normpath(u"%s/icons/missingfile_%sx%s.png" % (FILER_STATICMEDIA_PREFIX, 32, 32,))
 plugin_pool.register_plugin(FilerImagePlugin)
